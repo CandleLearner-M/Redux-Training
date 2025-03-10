@@ -19,7 +19,7 @@ const initialStateAccount: StateAccount = {
   loanPurpose: "",
 };
 
-function accountReducer(
+export default function accountReducer(
   state: StateAccount = initialStateAccount,
   action: AccountAction
 ) {
@@ -51,15 +51,15 @@ function accountReducer(
   }
 }
 
-function deposit(amount: number): AccountAction {
+export function deposit(amount: number): AccountAction {
   return { type: "account/deposit", payload: amount };
 }
-function withdraw(amount: number): AccountAction {
+export function withdraw(amount: number): AccountAction {
   return { type: "account/withdrawal", payload: amount };
 }
-function requestLoan(amount: number, purpose: string): AccountAction {
+export function requestLoan(amount: number, purpose: string): AccountAction {
   return { type: "account/requestLoan", payload: { amount, purpose } };
 }
-function payLoan(): AccountAction {
+export function payLoan(): AccountAction {
   return { type: "account/payLoan" };
 }
