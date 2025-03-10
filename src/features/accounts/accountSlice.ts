@@ -1,10 +1,13 @@
+import { AppThunk } from "../../types/types";
+
 interface StateAccount {
   balance: number;
   loanAmount: number;
   loanPurpose: string;
+  isLoading: boolean
 }
 
-type AccountAction =
+export type AccountAction =
   | { type: "account/deposit"; payload: number }
   | { type: "account/withdrawal"; payload: number }
   | {
@@ -17,6 +20,7 @@ const initialStateAccount: StateAccount = {
   balance: 0,
   loanAmount: 0,
   loanPurpose: "",
+  isLoading: false,
 };
 
 export default function accountReducer(
@@ -51,8 +55,24 @@ export default function accountReducer(
   }
 }
 
-export function deposit(amount: number): AccountAction {
-  return { type: "account/deposit", payload: amount };
+export function deposit(
+  amount: number,
+  currency: "USD" | "EUR" | "GBP"
+): AccountAction | AppThunk {
+  if (currency === "USD") return { type: "account/deposit", payload: amount };
+
+  return async (dispatch, getState) => {
+    // API
+    
+    const res = await fetch(
+      `https://api.frankfurter.app/latest?amount=${amount}&from=${currency}&to=USD`
+    );
+    const data = await res.json();
+    const convertedAmount = data.rates.USD;
+
+    // return the Action
+    dispatch({ type: "account/deposit", payload: convertedAmount });
+  };
 }
 export function withdraw(amount: number): AccountAction {
   return { type: "account/withdrawal", payload: amount };
