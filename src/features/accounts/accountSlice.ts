@@ -17,13 +17,16 @@ export type AccountAction =
   | { type: "account/payLoan" }
   | { type: "account/convertingCurrency" };
 
-const initialStateAccount: StateAccount = {
+const initialState: StateAccount = {
   balance: 0,
   loanAmount: 0,
   loanPurpose: "",
   isLoading: false,
 };
 
+
+
+/*
 export default function accountReducer(
   state: StateAccount = initialStateAccount,
   action: AccountAction
@@ -95,3 +98,4 @@ export function requestLoan(amount: number, purpose: string): AccountAction {
 export function payLoan(): AccountAction {
   return { type: "account/payLoan" };
 }
+*/
