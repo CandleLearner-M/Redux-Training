@@ -12,8 +12,8 @@ function AccountOperations() {
 
   const dispatch = useDispatch();
 
-  const remainingLoan = useSelector(
-    (store: RootState) => store.account.loanAmount
+  const {loanAmount: remainingLoan, isLoading} = useSelector(
+    (store: RootState) => store.account
   );
 
   function handleDeposit() {
@@ -98,7 +98,7 @@ function AccountOperations() {
         {remainingLoan !== 0 && (
           <div>
             <span>Pay back ${remainingLoan} </span>
-            <button onClick={handlePayLoan}>Pay loan</button>
+            <button onClick={handlePayLoan} disabled={isLoading}>Pay loan</button>
           </div>
         )}
       </div>
