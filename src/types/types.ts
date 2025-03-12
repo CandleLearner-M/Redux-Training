@@ -1,14 +1,16 @@
-import { ThunkAction, ThunkDispatch } from "redux-thunk";
-import { RootState } from "../store"; // Adjust path as needed
-import { AccountAction } from "../features/accounts/accountSlice";
+import { ThunkAction } from "redux-thunk";
+import { RootState, AppDispatch as StoreDispatch } from "../store";
+import { AnyAction } from "@reduxjs/toolkit";
 
-// Define your thunk action type
+// Define thunk type
 export type AppThunk<ReturnType = void> = ThunkAction<
   ReturnType,
   RootState,
   unknown,
-  AccountAction
+  AnyAction
 >;
 
-// Define dispatch type that understands thunks
-export type AppDispatch = ThunkDispatch<RootState, unknown, AccountAction>;
+export type { StoreDispatch as AppDispatch };
+
+import { useDispatch } from "react-redux";
+export const useAppDispatch = () => useDispatch<StoreDispatch>();

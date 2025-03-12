@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { deposit, payLoan, requestLoan, withdraw } from "./accountSlice";
+import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { useAppDispatch } from "../../types/types";
+import { deposit, payLoan, requestLoan, withdraw } from "./accountSlice";
 
 function AccountOperations() {
   const [depositAmount, setDepositAmount] = useState("");
@@ -10,7 +11,7 @@ function AccountOperations() {
   const [loanPurpose, setLoanPurpose] = useState("");
   const [currency, setCurrency] = useState<"USD" | "GBP" | "EUR">("USD");
 
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const { loanAmount: remainingLoan, isLoading } = useSelector(
     (store: RootState) => store.account
@@ -19,7 +20,9 @@ function AccountOperations() {
   function handleDeposit() {
     if (!depositAmount) return;
 
-    dispatch(deposit(+depositAmount, currency));
+    dispatch(deposit(+depositAmount, currency)); // The issue is here
+    // dispatch(deposit(+depositAmount));
+
     setDepositAmount("");
     setCurrency("USD");
   }

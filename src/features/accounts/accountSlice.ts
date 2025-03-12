@@ -1,3 +1,4 @@
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AppThunk } from "../../types/types";
 
 interface StateAccount {
@@ -7,16 +8,6 @@ interface StateAccount {
   isLoading: boolean;
 }
 
-export type AccountAction =
-  | { type: "account/deposit"; payload: number }
-  | { type: "account/withdrawal"; payload: number }
-  | {
-      type: "account/requestLoan";
-      payload: { amount: number; purpose: string };
-    }
-  | { type: "account/payLoan" }
-  | { type: "account/convertingCurrency" };
-
 const initialState: StateAccount = {
   balance: 0,
   loanAmount: 0,
@@ -24,59 +15,71 @@ const initialState: StateAccount = {
   isLoading: false,
 };
 
+const accountSlice = createSlice({
+  name: "account",
+  initialState,
+  reducers: {
+    deposit(state, action: PayloadAction<number>) {
+      state.balance += action.payload;
+    },
 
+    withdraw(state, action: PayloadAction<number>) {
+      state.balance -= action.payload;
+    },
+    requestLoan: {
+      prepare(amount: number, purpose: string) {
+        return {
+          payload: { amount, purpose },
+        };
+      },
 
-/*
-export default function accountReducer(
-  state: StateAccount = initialStateAccount,
-  action: AccountAction
-) {
-  switch (action.type) {
-    case "account/deposit":
-      return {
-        ...state,
-        balance: state.balance + action.payload,
-        isLoading: false,
-      };
-    case "account/withdrawal":
-      return { ...state, balance: state.balance - action.payload };
+      reducer(
+        state,
+        action: PayloadAction<{ amount: number; purpose: string }>
+      ) {
+        if (state.loanAmount > 0) return;
 
-    case "account/requestLoan":
-      if (state.loanAmount > 0) return state;
-      //! LATER
-      return {
-        ...state,
-        loanAmount: action.payload.amount,
-        balance: state.balance + action.payload.amount,
-        loanPurpose: action.payload.purpose,
-      };
+        state.loanAmount = action.payload.amount;
+        state.loanPurpose = action.payload.purpose;
+        state.balance += action.payload.amount;
+      },
+    },
 
-    case "account/payLoan":
-      return {
-        ...state,
-        loanAmount: 0,
-        loanPurpose: "",
-        balance: state.balance - state.loanAmount,
-      };
+    payLoan(state) {
+      state.balance -= state.loanAmount;
+      state.loanAmount = 0;
+      state.loanPurpose = "";
+    },
 
-    case "account/convertingCurrency":
-      return {
-        ...state,
-        isLoading: true,
-      };
-    default:
-      return state;
-  }
-}
+    convertingCurrency(state) {
+      state.isLoading = true;
+    },
+  },
+});
+
+export const {
+  convertingCurrency,
+  deposit: depositAction,
+  payLoan,
+  requestLoan,
+  withdraw,
+} = accountSlice.actions;
+
+export type DepositAction = {
+  type: "account/deposit";
+  payload: number;
+};
 
 export function deposit(
   amount: number,
   currency: "USD" | "EUR" | "GBP"
-): AccountAction | AppThunk {
-  if (currency === "USD") return { type: "account/deposit", payload: amount };
-
-  return async (dispatch, getState) => {
-    dispatch({ type: "account/convertingCurrency" });
+): AppThunk {
+  return async (dispatch) => {
+    if (currency === "USD") {
+      dispatch(depositAction(amount));
+      return;
+    }
+    dispatch(convertingCurrency());
     // API
 
     const res = await fetch(
@@ -86,16 +89,10 @@ export function deposit(
     const convertedAmount = data.rates.USD;
 
     // return the Action
-    dispatch({ type: "account/deposit", payload: convertedAmount });
+    dispatch(depositAction(convertedAmount));
   };
 }
-export function withdraw(amount: number): AccountAction {
-  return { type: "account/withdrawal", payload: amount };
-}
-export function requestLoan(amount: number, purpose: string): AccountAction {
-  return { type: "account/requestLoan", payload: { amount, purpose } };
-}
-export function payLoan(): AccountAction {
-  return { type: "account/payLoan" };
-}
-*/
+
+const accountReducer = accountSlice.reducer;
+
+export default accountReducer;
