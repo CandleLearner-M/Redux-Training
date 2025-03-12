@@ -39,8 +39,19 @@ const customerSlice = createSlice({
         state.nationalID = action.payload.nationalId;
       },
     },
+    updateName(state, action: PayloadAction<string>) {
+      state.fullName = action.payload;
+    },
   },
 });
+
+
+export const {createCustomer, updateName} = customerSlice.actions;
+
+const customerReducer = customerSlice.reducer;
+
+
+export default customerReducer; 
 
 // type ActionCustomer =
 //   | {
